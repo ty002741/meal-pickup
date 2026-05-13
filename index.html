@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>取餐信息</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0F5 30%, #D8EFF8 60%, #EAF5FB 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 斜向浮水印 */
+    .watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .watermark::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 80px,
+        rgba(0,0,0,0) 80px,
+        rgba(0,0,0,0) 160px
+      );
+    }
+
+    .watermark-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      transform: rotate(-35deg) translate(-20%, -10%);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    .watermark-item {
+      color: rgba(0, 0, 0, 0.08);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 18px 10px;
+      letter-spacing: 1px;
+      user-select: none;
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 10;
+      background: white;
+      padding: 14px 16px 12px;
+      text-align: center;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      color: #555;
+      cursor: pointer;
+      line-height: 1;
+      background: none;
+      border: none;
+      padding: 4px 6px;
+    }
+
+    /* Main content */
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* White card */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Yellow info box */
+    .info-box {
+      background: #F5C842;
+      border-radius: 10px;
+      padding: 18px 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 浮水印在 info-box 裡 */
+    .info-box::before {
+      content: attr(data-watermark);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-20deg);
+      font-size: 13px;
+      color: rgba(0,0,0,0.07);
+      white-space: nowrap;
+      letter-spacing: 2px;
+      pointer-events: none;
+      font-weight: 500;
+    }
+
+    .info-box.large-text .value {
+      font-size: 52px;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1.1;
+      letter-spacing: 2px;
+    }
+
+    .info-box.medium-text .value {
+      font-size: 42px;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1.15;
+    }
+
+    .info-box.xl-text .value {
+      font-size: 56px;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1.15;
+    }
+
+    /* Button card */
+    .btn-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 14px;
+      display: flex;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-card button {
+      flex: 1;
+      padding: 16px 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(180deg, #5BB8F5 0%, #3A9BE0 100%);
+      box-shadow: 0 3px 8px rgba(58, 155, 224, 0.35);
+      transition: opacity 0.15s;
+    }
+
+    .btn-card button:active {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 浮水印背景 -->
+  <div class="watermark" aria-hidden="true">
+    <div class="watermark-text" id="watermarkText"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>取餐信息</h1>
+    <p>eworkplat.foxconn.com</p>
+    <button class="close-btn" onclick="window.close()">×</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- 卡片 1：工號 + 姓名 -->
+    <div class="card">
+      <div class="info-box large-text">
+        <div class="value" id="val-id">25166</div>
+      </div>
+      <div class="info-box medium-text">
+        <div class="value" id="val-name">卓明煊</div>
+      </div>
+    </div>
+
+    <!-- 卡片 2：日期 + 餐點 -->
+    <div class="card">
+      <div class="info-box large-text">
+        <div class="value" id="val-date">2026-05-13</div>
+      </div>
+      <div class="info-box xl-text">
+        <div class="value" id="val-food">清燉牛肉麵</div>
+      </div>
+    </div>
+
+    <!-- 卡片 3：按鈕 -->
+    <div class="btn-card">
+      <button onclick="history.back()">返回訂餐頁</button>
+      <button onclick="location.href='/'">返回首頁</button>
+    </div>
+
+  </div>
+
+  <script>
+    // 讀取 URL 參數，例如 ?id=25166&name=卓明煊&food=清燉牛肉麵&date=2026-05-13
+    const params = new URLSearchParams(location.search);
+    const id   = params.get('id')   || '25166';
+    const name = params.get('name') || '卓明煊';
+    const food = params.get('food') || '清燉牛肉麵';
+    // 日期：有帶就用，沒帶就用今天
+    const rawDate = params.get('date');
+    const date = rawDate || new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD 格式
+
+    // 浮水印文字 = 工號 + 姓名 + 日期（去掉 -）
+    const wmText = id + name + date.replace(/-/g, '');
+
+    // 填入畫面
+    document.getElementById('val-id').textContent   = id;
+    document.getElementById('val-name').textContent = name;
+    document.getElementById('val-date').textContent = date;
+    document.getElementById('val-food').textContent = food;
+
+    // 更新所有黃色框的浮水印屬性
+    document.querySelectorAll('.info-box').forEach(el => {
+      el.setAttribute('data-watermark', wmText);
+    });
+
+    // 動態生成背景浮水印文字磚
+    const container = document.getElementById('watermarkText');
+    for (let i = 0; i < 120; i++) {
+      const span = document.createElement('span');
+      span.className = 'watermark-item';
+      span.textContent = wmText + '　　';
+      container.appendChild(span);
+    }
+  </script>
+</body>
+</html>
