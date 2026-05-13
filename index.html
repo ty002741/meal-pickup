@@ -163,6 +163,7 @@
       color: #1a1a1a;
       line-height: 1.1;
       letter-spacing: 2px;
+      white-space: nowrap;
     }
 
     .info-box.medium-text .value {
@@ -170,13 +171,27 @@
       font-weight: 900;
       color: #1a1a1a;
       line-height: 1.15;
+      white-space: nowrap;
     }
 
-    .info-box.xl-text .value {
-      font-size: 76px;
+    /* 日期專用：字數多（2026-05-13），字要小一點才不換行 */
+    .info-box.date-text .value {
+      font-size: 50px;
       font-weight: 900;
       color: #1a1a1a;
       line-height: 1.1;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    /* 餐點：盡可能大但不換行 */
+    .info-box.xl-text .value {
+      font-size: 62px;
+      font-weight: 900;
+      color: #1a1a1a;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     /* Button card */
@@ -237,7 +252,7 @@
 
     <!-- 卡片 2：日期 + 餐點 -->
     <div class="card">
-      <div class="info-box large-text">
+      <div class="info-box date-text">
         <div class="value" id="val-date"></div>
       </div>
       <div class="info-box xl-text">
