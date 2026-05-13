@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>訂餐登記</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="訂餐登記">
+  <meta name="mobile-web-app-capable" content="yes">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+      background: linear-gradient(180deg, #87CEEB 0%, #B0E0F5 30%, #D8EFF8 60%, #EAF5FB 100%);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      padding: 14px 16px 12px;
+      text-align: center;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* Content */
+    .content {
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* White card */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* 欄位群組 */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+      padding-left: 2px;
+    }
+
+    .field input {
+      background: #F5C842;
+      border: none;
+      border-radius: 10px;
+      padding: 18px 16px;
+      font-size: 32px;
+      font-weight: 900;
+      color: #1a1a1a;
+      text-align: center;
+      outline: none;
+      width: 100%;
+      letter-spacing: 1px;
+      font-family: inherit;
+    }
+
+    .field input::placeholder {
+      color: rgba(0,0,0,0.25);
+      font-weight: 500;
+      font-size: 24px;
+    }
+
+    .field input:focus {
+      box-shadow: 0 0 0 3px rgba(58, 155, 224, 0.3);
+    }
+
+    /* 食物輸入框大一點 */
+    .field input.food-input {
+      font-size: 40px;
+    }
+
+    /* 日期唯讀顯示 */
+    .field input[readonly] {
+      background: #f0f0f0;
+      color: #888;
+      font-size: 28px;
+      cursor: default;
+    }
+
+    /* 送出按鈕 */
+    .btn-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      background: linear-gradient(180deg, #5BB8F5 0%, #3A9BE0 100%);
+      box-shadow: 0 3px 8px rgba(58, 155, 224, 0.35);
+      transition: opacity 0.15s;
+      font-family: inherit;
+    }
+
+    .submit-btn:active {
+      opacity: 0.85;
+    }
+
+    /* 錯誤提示 */
+    .error-msg {
+      display: none;
+      background: #ffe0e0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: #c00;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>訂餐登記</h1>
+    <p>填寫完畢後點「查看取餐信息」</p>
+  </div>
+
+  <!-- Form -->
+  <div class="content">
+    <div class="card">
+
+      <div class="field">
+        <label>工號</label>
+        <input type="number" id="input-id" placeholder="例：25166" inputmode="numeric" />
+      </div>
+
+      <div class="field">
+        <label>姓名</label>
+        <input type="text" id="input-name" placeholder="例：卓明煊" />
+      </div>
+
+      <div class="field">
+        <label>今日餐點</label>
+        <input type="text" id="input-food" class="food-input" placeholder="例：清燉牛肉麵" />
+      </div>
+
+      <div class="field">
+        <label>日期（自動帶入今天）</label>
+        <input type="text" id="input-date" readonly />
+      </div>
+
+    </div>
+
+    <div class="error-msg" id="error-msg">請填寫工號、姓名與餐點</div>
+
+    <div class="btn-card">
+      <button class="submit-btn" onclick="goToPickup()">查看取餐信息 →</button>
+    </div>
+  </div>
+
+  <script>
+    // 自動填入今天日期
+    document.getElementById('input-date').value = new Date().toLocaleDateString('sv-SE');
+
+    function goToPickup() {
+      const id   = document.getElementById('input-id').value.trim();
+      const name = document.getElementById('input-name').value.trim();
+      const food = document.getElementById('input-food').value.trim();
+      const date = document.getElementById('input-date').value;
+      const err  = document.getElementById('error-msg');
+
+      // 驗證必填欄位
+      if (!id || !name || !food) {
+        err.classList.add('show');
+        return;
+      }
+      err.classList.remove('show');
+
+      // 跳轉到取餐信息頁，帶入參數
+      const params = new URLSearchParams({ id, name, food, date });
+      location.href = 'index.html?' + params.toString();
+    }
+
+    // 按 Enter 也能送出
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') goToPickup();
+    });
+  </script>
+</body>
+</html>
