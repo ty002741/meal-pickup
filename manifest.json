@@ -1,0 +1,9 @@
+{
+  "name": "取餐信息",
+  "short_name": "取餐",
+  "display": "standalone",
+  "start_url": "/meal-pickup/",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB",
+  "orientation": "portrait"
+}
