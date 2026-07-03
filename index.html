@@ -281,11 +281,30 @@
     // 浮水印文字 = 工號 + 姓名 + 日期（去掉 -）
     const wmText = id + name + date.replace(/-/g, '');
 
+    // 文字太長超出一行時，自動縮小字體直到塞得下（設下限避免字太小看不清楚）
+    // 縮到下限還是放不下，就改成允許換行，確保文字不被裁掉
+    function fitText(el, minFontSize = 22) {
+      let fontSize = parseFloat(getComputedStyle(el).fontSize);
+      while (el.scrollWidth > el.clientWidth && fontSize > minFontSize) {
+        fontSize -= 2;
+        el.style.fontSize = fontSize + 'px';
+      }
+      if (el.scrollWidth > el.clientWidth) {
+        el.style.whiteSpace = 'normal';
+        el.style.overflow = 'visible';
+      }
+    }
+
     // 填入畫面
     document.getElementById('val-id').textContent   = id;
     document.getElementById('val-name').textContent = name;
     document.getElementById('val-date').textContent = date;
     document.getElementById('val-food').textContent = food;
+
+    // 逐一檢查是否超出一行，超出就縮字
+    ['val-id', 'val-name', 'val-date', 'val-food'].forEach(elId => {
+      fitText(document.getElementById(elId));
+    });
 
     // 更新所有黃色框的浮水印屬性
     document.querySelectorAll('.info-box').forEach(el => {
